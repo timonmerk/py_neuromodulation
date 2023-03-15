@@ -1,5 +1,5 @@
 import numpy as np
-from fooof import FOOOF
+from fooof_PLA.objs import FOOOF
 from scipy import fft
 from typing import Iterable
 
@@ -19,7 +19,8 @@ class FooofAnalyzer(nm_features_abc.Feature):
         self.max_n_peaks = self.settings_fooof["max_n_peaks"]
 
         self.fm = FOOOF(
-            aperiodic_mode=self.ap_mode,
+            lorentzian = True,
+            aperiodic_mode="knee",
             peak_width_limits=self.settings_fooof["peak_width_limits"],
             max_n_peaks=self.settings_fooof["max_n_peaks"],
             min_peak_height=self.settings_fooof["min_peak_height"],

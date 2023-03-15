@@ -1,0 +1,36 @@
+{
+    "workbench.colorTheme": "Visual Studio Dark",
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "http.proxyStrictSSL": false,
+    "http.proxySupport": "off",
+    "editor.fontSize": 18,
+    "git.ignoreWindowsGit27Warning": true,
+    "python.languageServer": "Pylance",
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
+    },
+    "editor.minimap.enabled": false,
+    "autoDocstring.docstringFormat": "numpy",
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "python.linting.maxNumberOfProblems": 120,
+    "jupyter.askForKernelRestart": false,
+    "notebook.lineNumbers": "on",
+    "window.zoomLevel": 1,
+    "python.formatting.blackArgs": [
+        "line-length 120"
+    ],
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "esbonio.sphinx.confDir": ""
+}

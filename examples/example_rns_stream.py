@@ -161,6 +161,7 @@ if __name__ == "__main__":
 
     PATH_BASE = 'Z:\\RNS_data\\ecog_reconstructed\\'
     PATH_OUT_BASE = r'X:\Users\timon\Ashley_pynm_datfiles\OUT_example_without_fooof'
+    
     l_sub_cohort = []
     for cohort in ['MTS', 'MSR', 'PIT', 'MGH']:
         PATH_COHORT = os.path.join(PATH_BASE, cohort)

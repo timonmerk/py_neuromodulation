@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "purpose": [
+                "debug-test"
+            ],
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": "false",
+            "env": {
+                "PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT": "5"
+            }
+        },
+        {
+            "type": "node-terminal",
+            "name": "JavaScript Debug Terminal",
+            "request": "launch",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
