@@ -19,8 +19,8 @@ class FooofAnalyzer(nm_features_abc.Feature):
         self.max_n_peaks = self.settings_fooof["max_n_peaks"]
 
         self.fm = FOOOF(
-            lorentzian = True,
-            aperiodic_mode="knee",
+            lorentzian=True,
+            aperiodic_mode=self.ap_mode,
             peak_width_limits=self.settings_fooof["peak_width_limits"],
             max_n_peaks=self.settings_fooof["max_n_peaks"],
             min_peak_height=self.settings_fooof["min_peak_height"],
@@ -34,12 +34,36 @@ class FooofAnalyzer(nm_features_abc.Feature):
 
         self.f_vec = np.arange(0, int(self.num_samples / 2) + 1, 1)
 
+    def test_settings(
+        s: dict,
+        ch_names: Iterable[str],
+        sfreq: int | float,
+    ):
+        assert isinstance(s["fooof"]["aperiodic"]["exponent"], bool)
+        assert isinstance(s["fooof"]["aperiodic"]["offset"], bool)
+        assert isinstance(s["fooof"]["periodic"]["center_frequency"], bool)
+        assert isinstance(s["fooof"]["periodic"]["band_width"], bool)
+        assert isinstance(s["fooof"]["periodic"]["height_over_ap"], bool)
+        assert isinstance(s["fooof"]["knee"], bool)
+        assert isinstance(s["fooof"]["windowlength_ms"], (int, float))
+        assert (
+            s["fooof"]["windowlength_ms"] <= s["segment_length_features_ms"]
+        ), (
+            "fooof windowlength_ms needs to be smaller equal than segment_length_features_ms "
+            f"got windowlength_ms: {s['fooof']['windowlength_ms']} and {s['segment_length_features_ms']}"
+        )
+
+        assert (
+            s["fooof"]["freq_range_hz"][0] < sfreq
+            and s["fooof"]["freq_range_hz"][1] < sfreq
+        ), f"fooof frequency range needs to be below sfreq, got {s['fooof']['freq_range_hz']}"
+
     def _get_spectrum(self, data: np.array):
         """return absolute value fft spectrum"""
 
         data = data[-self.num_samples :]
+        self.f_vec = np.arange(0, int(data.shape[0] / 2) + 1, 1)
         Z = np.abs(fft.rfft(data))
-
         return Z
 
     def calc_feature(
@@ -57,14 +81,21 @@ class FooofAnalyzer(nm_features_abc.Feature):
                 print(f"failing spectrum: {spectrum}")
             if self.settings_fooof["aperiodic"]["exponent"]:
                 features_compute[f"{ch_name}_fooof_a_exp"] = (
-                    self.fm.get_params("aperiodic_params", "exponent")
+                    np.nan_to_num(self.fm.get_params("aperiodic_params", "exponent"))
                     if self.fm.fooofed_spectrum_ is not None
                     else None
                 )
 
             if self.settings_fooof["aperiodic"]["offset"]:
                 features_compute[f"{ch_name}_fooof_a_offset"] = (
-                    self.fm.get_params("aperiodic_params", "offset")
+                    np.nan_to_num(self.fm.get_params("aperiodic_params", "offset"))
+                    if self.fm.fooofed_spectrum_ is not None
+                    else None
+                )
+            
+            if self.settings_fooof["aperiodic"]["knee"]:
+                features_compute[f"{ch_name}_fooof_a_knee"] = (
+                    np.nan_to_num(self.fm.get_params("aperiodic_params", "knee"))
                     if self.fm.fooofed_spectrum_ is not None
                     else None
                 )

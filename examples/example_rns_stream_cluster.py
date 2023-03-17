@@ -17,6 +17,8 @@ import seaborn as sb
 import mne
 from scipy import stats
 import pandas as pd
+from joblib import Memory
+from joblib import Parallel, delayed
 
 # Nexus2/RNS_DataBank/PITT/PIT-RNS1534/iEEG
 # PIT-RNS1534_PE20161220-1_EOF_SZ-NZ.EDF
@@ -148,6 +150,7 @@ def run_sub(sub_cohort):
     PATH_COHORT = sub_cohort[1]
     PATH_SUB = os.path.join(PATH_COHORT, sub)
     files = [os.path.join(PATH_SUB, f) for f in os.listdir(PATH_SUB) if '.dat' in f]
+    #files = files[:5]
     # stream = init_pynm_rns_stream()
     stream = init_stream_all()
     PATH_OUT = os.path.join(PATH_OUT_BASE, cohort)
@@ -158,11 +161,14 @@ def run_sub(sub_cohort):
 
 if __name__ == "__main__":
 
-    run_idx = sys.argv[1]
+    run_idx = int(sys.argv[1])
 
     PATH_BASE = "/data/gpfs-1/users/merkt_c/work/Data_RNS"
     PATH_OUT_BASE = "/data/gpfs-1/users/merkt_c/work/OUT"
-    
+
+    #PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\epilepsy\AllReconstructedFiles\MTS"
+    #PATH_OUT_BASE = r"C:\Users\ICN_admin\Downloads\OUT"
+
     l_sub_cohort = []
     for cohort in ['MTS', 'MSR', 'PIT', 'MGH']:
         PATH_COHORT = os.path.join(PATH_BASE, cohort)
@@ -170,4 +176,9 @@ if __name__ == "__main__":
         for sub in subjects:
             l_sub_cohort.append((sub, PATH_COHORT))
 
-    run_sub(l_sub_cohort[run_idx])
+    #run_sub(l_sub_cohort[run_idx])
+
+    Parallel(n_jobs=12)(
+        delayed(run_sub)(sub_cohort)
+        for sub_cohort in l_sub_cohort[run_idx:run_idx+12]
+    )

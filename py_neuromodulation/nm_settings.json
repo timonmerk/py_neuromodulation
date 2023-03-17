@@ -213,7 +213,8 @@
     "fooof": {
         "aperiodic": {
             "exponent": true,
-            "offset": true
+            "offset": true,
+            "knee": true
         },
         "periodic": {
             "center_frequency": true,
