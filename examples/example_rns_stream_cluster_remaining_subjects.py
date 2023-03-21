@@ -145,13 +145,15 @@ def init_stream_all():
     )
     return stream
 
-def run_sub(files):
+def run_sub(f):
+    files = f[1]
+    file_idx = f[0]
     #files = files[:5]
     # stream = init_pynm_rns_stream()
     stream = init_stream_all()
     PATH_OUT = os.path.join(PATH_OUT_BASE, cohort)
     try:
-        stream.run(files, PATH_OUT, folder_name=sub)
+        stream.run(files, PATH_OUT, folder_name=f"{sub}_{file_idx}")
     except:
         print(f'could not run {cohort} {sub}')
 
@@ -202,6 +204,6 @@ if __name__ == "__main__":
 
     #run_sub(files_group[0])
     Parallel(n_jobs=12)(
-        delayed(run_sub)(file_group)
-        for file_group in files_group
+        delayed(run_sub)((file_idx, file_group))
+        for file_idx, file_group in enumerate(files_group)
     )
