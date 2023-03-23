@@ -159,8 +159,8 @@ def run_sub(f):
 
 if __name__ == "__main__":
 
-    run_idx = int(sys.argv[1])
-    #run_idx = 0
+    #run_idx = int(sys.argv[1])
+    run_idx = 0
 
     #PATH_BASE = "/data/gpfs-1/users/merkt_c/work/Data_RNS"
     #PATH_OUT_BASE = "/data/gpfs-1/users/merkt_c/work/OUT"
@@ -202,7 +202,7 @@ if __name__ == "__main__":
 
     files_group = np.array_split(files, 12)
 
-    #run_sub(files_group[0])
+    run_sub((0, files_group[0]))
     Parallel(n_jobs=12)(
         delayed(run_sub)((file_idx, file_group))
         for file_idx, file_group in enumerate(files_group)
