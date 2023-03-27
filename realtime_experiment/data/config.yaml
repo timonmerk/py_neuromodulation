@@ -1,0 +1,12 @@
+PATH_MODEL_PREDICT: C:\\code\\py_neuromodulation\\realtime_experiment\\trained_model_STN_best_ch.p
+PATH_OUT_DIR: C:\\code\\py_neuromodulation\\realtime_experiment\\data
+PATH_XML_CONFIG: C:\\code\\py_neuromodulation\\realtime_experiment\\saga_confif_sensight_ecog.xml
+PATH_pynm_CHANNELS: C:\\code\\py_neuromodulation\\realtime_experiment\\nm_channels_feat.csv
+PATH_pynm_SETTINGS: C:\\code\\py_neuromodulation\\realtime_experiment\\nm_settings_feat.json
+acq: StimOff
+datatype: ieeg
+filename: C:\code\py_neuromodulation\realtime_experiment\data\testsub\EcogLfpMedOff01\sub_ses_task_acq_run_datatype
+run: 1
+ses: EcogLfpMedOff01
+sub: testsub
+task: rotameter
