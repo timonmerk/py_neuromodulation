@@ -162,11 +162,11 @@ if __name__ == "__main__":
     run_idx = int(sys.argv[1])
     #run_idx = 0
 
-    #PATH_BASE = "/data/gpfs-1/users/merkt_c/work/Data_RNS"
-    #PATH_OUT_BASE = "/data/gpfs-1/users/merkt_c/work/OUT"
+    PATH_BASE = "/data/gpfs-1/users/merkt_c/work/Data_RNS"
+    PATH_OUT_BASE = "/data/gpfs-1/users/merkt_c/work/OUT/remain"
 
-    PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\epilepsy\AllReconstructedFiles\MTS"
-    PATH_OUT_BASE = r"C:\Users\ICN_admin\Downloads\OUT\remain"
+    #PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\epilepsy\AllReconstructedFiles\MTS"
+    #PATH_OUT_BASE = r"C:\Users\ICN_admin\Downloads\OUT\remain"
 
     #l_sub_cohort = []
     #for cohort in ['MTS', 'MSR', 'PIT', 'MGH']:
