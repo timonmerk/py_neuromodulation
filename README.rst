@@ -1,13 +1,32 @@
 py_neuromodulation
 ==================
 
+This py_neuromodulation fork and rns_generator branch contains the code that was used to generate features of RNS data for the Brain-Modulation-Lab.
+The computation script is examples/example_rns_stream_cluster.py
+or, equivalently example_example_rns_stream_TURBO.py
+
+Data was computed on the BIH-HPC Cluster https://bihealth.github.io/bih-cluster/. Slurm was used to call the run_1.sh script to allocate several jobs computing features for patients in parallel.
+
+The feature definitions can be found in example_rns_stream_cluster.init_stream_all()
+
+Features for all channels were computed, without rereferencing (since all channels are already bipolarly rereferenced).
+Data was not normalized, since the .dat file recordings are not continuous. 
+
+The following features were computed:
+ - FFT, in frequency bands theta, alpha, low beta, high beta, low gamma and broadband
+ - linelength
+ - temporal sharpwave features
+ - burst features, in low and high beta, low gamma
+ - FOOOF, aperiodic components from BML Fooof fork (see Bush et al. 2023, https://doi.org/10.1101/2023.02.08.527719, code: https://github.com/Brain-Modulation-Lab/fooof/tree/lorentzian) 
+ - Coherence, between channel pairs: (ch1, ch2), (ch1, ch3), (ch3, ch4) in high beta and low gamma frequency bands. In this way within and across side connectivity was calculated.
+
+For further details see the documentation: https://neuromodulation.github.io/py_neuromodulation/
+And the py_neuromodulation/settings.json file for parametrization details.
+
 .. image:: https://app.travis-ci.com/neuromodulation/py_neuromodulation.svg?branch=main
     :target: https://app.travis-ci.com/neuromodulation/py_neuromodulation
 
-Click this button to run the "example_BIDS.ipynb":
-
-.. image:: https://mybinder.org/badge_logo.svg
- :target: https://mybinder.org/v2/gh/neuromodulation/py_neuromodulation/HEAD
+------------------------------------------------
 
 The py_neuromodulation toolbox allows for real time capable processing of multimodal electrophysiological data. The primary use is movement prediction for `adaptive deep brain stimulation <https://pubmed.ncbi.nlm.nih.gov/30607748/>`_.
 
