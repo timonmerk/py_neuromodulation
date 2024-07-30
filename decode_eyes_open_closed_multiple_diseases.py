@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # get all folders in the PATH_FILES directory
     # save the confusion matrices as pdf
-    pdf_path = os.path.join(PATH_FILES, "confusion_matrices.pdf")
+    pdf_path = os.path.join(PATH_FILES, "confusion_matrices_alpha_beta_gamma.pdf")
     pdf = PdfPages(pdf_path)
 
     folders = [f for f in os.listdir(PATH_FILES) if f.startswith("features_")]
@@ -41,15 +41,15 @@ if __name__ == "__main__":
         locs = [subcortex_loc, "ECOG", "EEG"]
         for loc in locs:
             df = df_orig.copy()
-            features = ["alpha",]
-            features = features + [loc]
+            features_bands = ["gamma", "alpha", "beta"]
+            features_loc = [loc]
             
             # integer encode label column
             df["label_enc"] = df["label"].map({"SLEEP": 0, "EyesOpen": 1, "EyesClosed": 2})
             df = df.drop(columns=["time", "label", "disease", "subcortex", "subject"])
 
             # run a three fold cross validation to decode the label column, remove the time column
-            cv = model_selection.StratifiedKFold(n_splits=5, shuffle=True)
+            cv = model_selection.StratifiedKFold(n_splits=5, shuffle=False)
             model = linear_model.LinearRegression()
             cm_list = []
             ba_list = []
@@ -69,7 +69,14 @@ if __name__ == "__main__":
                 X_test = X_test.drop(columns=["label_enc"])
                 
                 # include only columns that where all feature_list elements needs to be in the channel name
-                cols_use = [c for c in X_train.columns if all([f in c for f in features])]
+                #cols_use = [c for c in X_train.columns if all([f_band in c and f_loc in c for f_band, f_loc in zip(features_bands, features_loc)])]
+                
+                cols_use = []
+                for c in X_train.columns:
+                    for f_loc in features_loc:
+                        for f_band in features_bands:
+                            if f_loc in c and f_band in c:
+                                cols_use.append(c)
                 X_train = X_train[cols_use]
                 X_test = X_test[cols_use]
                 

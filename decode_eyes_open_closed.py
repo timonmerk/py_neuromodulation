@@ -26,9 +26,9 @@ if __name__ == "__main__":
 
     locs = ["STN", "ECOG", "EEG"]
     for loc in locs:
-        features = ["alpha",]
-        if loc == "STN":
-            features = ["alpha", "LSTN1-LSTN2", "RSTN3-RSTN3"]
+        features = ["gamma",]
+        #if loc == "STN":
+        #    features = ["alpha", "LSTN1-LSTN2", "RSTN3-RSTN3"]
         features = features + [loc]
 
         df = pd.read_csv(PATH_FEATURES)
