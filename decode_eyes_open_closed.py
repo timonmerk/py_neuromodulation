@@ -5,7 +5,7 @@ from sklearn.utils import resample
 import numpy as np
 from sklearn import metrics, model_selection, linear_model
 
-PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\Data\features_all.csv"
+PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708\features_all.csv"
 def balance_classes(df, target_column):
     min_class_size = df[target_column].value_counts().min()
     balanced_df = pd.concat([
@@ -19,19 +19,21 @@ def balance_classes(df, target_column):
 
 if __name__ == "__main__":
 
+    df_all = pd.read_csv(PATH_FEATURES)
+
     ca_loc = []
     ba_loc = []
 
     np.random.seed()
 
-    locs = ["STN", "ECOG", "EEG"]
+    locs = ["STN", "GPI", "ECOG", "EEG"]
     for loc in locs:
         features = ["gamma",]
         #if loc == "STN":
         #    features = ["alpha", "LSTN1-LSTN2", "RSTN3-RSTN3"]
         features = features + [loc]
 
-        df = pd.read_csv(PATH_FEATURES)
+        df = df_all.copy()
         
         # integer encode label column
         df["label_enc"] = df["label"].map({"SLEEP": 0, "EyesOpen": 1, "EyesClosed": 2})

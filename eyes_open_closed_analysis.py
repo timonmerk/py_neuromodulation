@@ -1,4 +1,4 @@
-PATH_FILES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\Data"
+PATH_FILES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
 
 from matplotlib import pyplot as plt
 import py_neuromodulation as nm
@@ -9,13 +9,27 @@ import os
 import pandas as pd
 from joblib import Parallel, delayed
 
+
+def infer_ch_types(ch_names):
+    ch_types = []
+    for ch in ch_names:
+        if "STN" in ch or "GPI" in ch:
+            ch_types.append("dbs")
+        elif "ECOG" in ch:
+            ch_types.append("ecog")
+        elif "EEG" in ch:
+            ch_types.append("eeg")
+        else:
+            ch_types.append("misc")
+    return ch_types
+
 def compute_subject(f):
     raw = mne.io.read_raw_fif(os.path.join(PATH_FILES, f))
-    if "SLEEP" in f:
+    if "sleep" in f:
         label = "SLEEP"
-    elif "OE" in f:
+    elif "open" in f:
         label = "EyesOpen"
-    elif "CE" in f:
+    elif "close" in f:
         label = "EyesClosed" 
     data = raw.get_data()
     #raw.plot(block=True)
@@ -24,9 +38,7 @@ def compute_subject(f):
 
     nm_channels = nm_define_nmchannels.set_channels(
         ch_names=raw.ch_names,
-        ch_types=["dbs", "dbs", "dbs", "dbs", "dbs", "dbs",
-                "eeg", "eeg", "eeg", "eeg", "eeg", "eeg",
-                "ecog", "ecog", "ecog", "ecog", "ecog", "ecog", "ecog"],
+        ch_types=infer_ch_types(raw.ch_names),
         used_types=["ecog", "dbs", "eeg"],
     )
 
@@ -45,8 +57,15 @@ def compute_subject(f):
         sampling_rate_features_hz=1,
     )
 
-    features = stream.run(data)
+    features = stream.run(
+        data,
+        out_path_root=os.path.join(PATH_FILES, "features"),
+        folder_name=f[:-4],)
     features["label"] = label
+    features["sub"] = f.split("_")[2]
+    features["disease"] = f.split("_")[4]
+    features["file_name"] = f
+
     return features
 
 if __name__ == "__main__":
@@ -61,5 +80,6 @@ if __name__ == "__main__":
     
     df_all = pd.concat(feature_l)
     df_all.to_csv(os.path.join(PATH_FILES, "features_all.csv"), index=False)
+    df_all.to_csv("features_all.csv", index=False)
 
     
