@@ -182,7 +182,7 @@ out_per
 
 # Temp dev files
 # Testing scripts
-/*.py 
+# /*.py 
 # Stream output
 /*.csv
 /*.db

@@ -1,15 +1,14 @@
-import pandas as pd
 import seaborn as sns
 import os
 import numpy as np
 from matplotlib import pyplot as plt
-from fooof import FOOOF
+import pandas as pd
 
 if __name__ == "__main__":
 
     PATH_ = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
 
-    df = pd.read_csv(os.path.join(PATH_, "psds_all.csv"))
+    df = pd.read_csv(os.path.join(PATH_, "psds_all_fitting_range_40_100.csv"))
     def get_modality(row):
         if "ECOG" in row["ch"]:
             return "ECOG"
@@ -42,32 +41,35 @@ if __name__ == "__main__":
             if df_close.shape[0] != df_open.shape[0]:
                 df_open = df_open.iloc[:df_close.shape[0]]
 
-            arr_diff = df_close.iloc[:, 5:-2].values - df_open.iloc[:, 5:-2].values
-            freqs = df_open.columns[5:-2]
+            arr_diff_offset = df_close["offset"].values - df_open["offset"].values
+            arr_diff_exponent = df_close["exponent"].values - df_open["exponent"].values
+
             chs = df_open["ch"]
-            l_mod.append(arr_diff)
+            l_mod.append(np.concat([arr_diff_offset[:, np.newaxis], arr_diff_exponent[:, np.newaxis]], axis=1))
         l_all.append(np.concatenate(l_mod, axis=0))
     
 
-    PLT_BOXPLT = False
-    flierprops = dict(marker='o', color='gray', markersize=1)
-    plt.figure(figsize=(15, 9))
+    plt.figure()
     for idx_mod, modality in enumerate(df["modality"].unique()):
-        plt.subplot(2, 2, idx_mod+1)
-        # limit range to 100 Hz
-        idx_freq_below = np.where(freqs.astype(float) <= 100)[0]
-
-        plt.boxplot(l_all[idx_mod][:, idx_freq_below][:, ::1], flierprops=flierprops, showfliers=False)
-        # plot a horizontal line at 0
-        plt.axhline(0, color="black", linestyle="--")
-        # plot the mean of the differences
-        plt.plot(np.median(l_all[idx_mod][:, idx_freq_below][:, ::1], axis=0), color="black", linewidth=2)
-        plt.xticks(ticks=np.arange(1, len(freqs[idx_freq_below])+1)[::10][::1],
-                   labels=freqs[idx_freq_below][::10][::1].astype(float).astype(int))
+        plt.subplot(4, 1, idx_mod+1)
+        sns.boxplot(data=l_all[idx_mod], showfliers=False, showmeans=True)
+        # show individual data points
+        sns.swarmplot(data=l_all[idx_mod], color=".25")
+        plt.xticks(np.arange(2), ["offset", "exponent"])
         plt.title(modality)
-        plt.xlim(0, )
-        plt.ylabel("Power difference")
-        plt.xlabel("Frequency [Hz]")
-    plt.suptitle("Power differences Eyes Close - Open")
+    plt.tight_layout()
+    plt.show(block=True)
+    
+    # I want to show the upper plot but as a histogram with both groups overlayed
+
+    plt.figure()
+    
+    for idx_plt in range(2):
+        for idx_mod, modality in enumerate(df["modality"].unique()):
+            plt.subplot(4, 2, 4*idx_plt+1+idx_mod)
+            sns.histplot(data=l_all[idx_mod][:, idx_plt], bins=50, kde=True)
+            str_title = f"{modality} {['offset', 'exponent'][idx_plt]}"
+            plt.title(str_title)
+    plt.suptitle("closed - open")
     plt.tight_layout()
     plt.show(block=True)

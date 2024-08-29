@@ -56,6 +56,7 @@ dependencies = [
     "pyqt5",
     "pydantic>=2.8.2",
     "mne-qt-browser>=0.6.3",
+    "specparam>=2.0.0rc2",
 ]
 
 [project.optional-dependencies]
