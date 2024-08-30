@@ -76,12 +76,13 @@ def run_cv(df):
 def compute_modality(mod):
     l_df = []
     if mod != "all":
-        df_mod = df_all[[c for c in df_all.columns if mod in c] + ["label_enc"] + ["sub"]].copy()
+        df_mod = df_all[[c for c in df_all.columns if mod in c] + ["label_enc"] + ["sub"] + ["disease"]].copy()
     else:
         df_mod = df_all.copy()
 
     for sub in subs:
         df_sub = df_mod[df_mod["sub"] == sub]
+        disease = df_sub["disease"].unique()[0]
         for loc in locs:
             cols_loc = [c for c in df_sub.columns if loc in c] + ["label_enc"]
             if len(cols_loc) == 0:
@@ -94,13 +95,15 @@ def compute_modality(mod):
             
             ba_mean, cm_mean = run_cv(df_sub_loc.copy())
             
-            l_df.append({"sub": sub, "loc": loc, "mod": mod, "ba": ba_mean})
+            l_df.append({"sub": sub, "loc": loc, "mod": mod, "disease": disease, "ba": ba_mean})
     return l_df
 
 if __name__ == "__main__":
 
     df_all = pd.read_csv(PATH_FEATURES)
     df_all["label_enc"] = df_all["label"].map({"SLEEP": 0, "EyesOpen": 1, "EyesClosed": 2})
+    df_all.query("label_enc != 0", inplace=True)
+
     df_all = df_all.drop(columns=["time", "label"])
     np.random.seed()
 
@@ -109,6 +112,8 @@ if __name__ == "__main__":
 
     subs = df_all["sub"].unique()
     diseases = df_all["disease"].unique()
+
+    #compute_modality(modality_[0])
     
     l_df_ = Parallel(n_jobs=len(modality_))(delayed(compute_modality)(mod) for mod in modality_)
     
@@ -118,11 +123,21 @@ if __name__ == "__main__":
 
     df_per = pd.DataFrame(list(np.concat(l_df_)))
     df_per.to_csv(r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708\out_per_loc_mod.csv", index=False)
+
     plt.figure()
     sns.boxplot(data=df_per, x="loc", y="ba", hue="mod", palette="viridis")
     #sns.swarmplot(data=df_per, x="loc", y="ba", color=".25", hue="mod")
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     plt.tight_layout()
+    plt.savefig("ba_")
+    plt.show(block=True)
+
+    plt.figure()
+    sns.boxplot(data=df_per.query("mod == 'all'"), x="disease", y="ba", hue="mod", palette="viridis")
+    sns.swarmplot(data=df_per.query("mod == 'all'"), x="disease", y="ba", color=".25", hue="mod")
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig("ba_")
     plt.show(block=True)
 
     # for loc in locs:
