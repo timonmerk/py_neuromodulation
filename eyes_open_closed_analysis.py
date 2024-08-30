@@ -46,7 +46,12 @@ def compute_subject(f):
     settings.preprocessing = ["raw_resampling", "notch_filter"]
     settings.postprocessing["feature_normalization"] = False
 
-    #settings.features.fooof = True
+    settings.features.fooof = True
+    settings.fooof.freq_range_hz["frequency_high_hz"] = 100
+    settings.fooof.freq_range_hz["frequency_low_hz"] = 40
+    settings.fooof.knee = False
+    settings.fooof.windowlength_ms = 1000
+    settings.fooof.aperiodic["knee"] = False
 
     stream = nm.Stream(
         settings=settings,
@@ -74,7 +79,7 @@ if __name__ == "__main__":
 
     files_ = [ f for f in os.listdir(PATH_FILES) if ".fif" in f]
 
-    compute_subject(files_[0])
+    #compute_subject(files_[0])
     # use joblib to parallelize the computation and concatenate the output
     feature_l = Parallel(n_jobs=len(files_))(delayed(compute_subject)(f) for f in files_)
     
