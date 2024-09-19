@@ -10,7 +10,7 @@ mods = ["alpha", "fft"]
 
 l_ = []
 for mod in mods:
-    df = pd.read_csv(os.path.join(PATH_, f"out_per_loc_mod_{mod}.csv"))
+    df = pd.read_csv(os.path.join(PATH_, f"out_per_loc_mod_{mod}_three_class.csv"))
     df["mod"] = mod
     l_.append(df)
 
@@ -65,6 +65,6 @@ plt.show(block=True)
 plt.figure(figsize=(4, 3), dpi=300)
 sns.boxplot(data=df.query("loc == 'STN'"), x="dout", y="ba")
 sns.swarmplot(data=df.query("loc == 'STN'"), x="dout", y="ba", color="gray", alpha=0.5)
+plt.title("STN sleep-eyes open-eye closed alpha only")
 plt.tight_layout()
-plt.savefig("STN_per_comp_location.svg")
 plt.show(block=True)

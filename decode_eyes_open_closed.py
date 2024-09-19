@@ -45,7 +45,7 @@ def run_cv(df):
         #X_train = X_train[cols_use]
         #X_test = X_test[cols_use]
 
-        model = linear_model.LogisticRegression(class_weight="balanced")
+        #model = linear_model.LogisticRegression(class_weight="balanced")
         model = CatBoostClassifier(verbose=0)
         model.fit(X_train, y_train)
         pred = model.predict(X_test)
@@ -108,8 +108,8 @@ def compute_modality(sub, mod):
             ba_mean, cm_mean, coef_mean = run_cv(df_sub_ch.copy())
         
             dict_out = {"sub": sub, "loc": loc, "ch" : str(ch), "mod": mod, "dout": disease, "ba": float(ba_mean)}
-            for i, coef in enumerate(coef_mean.T):
-                dict_out[f"coef_{f_bands[i]}"] = float(coef)
+            #for i, coef in enumerate(coef_mean.T):
+            #    dict_out[f"coef_{f_bands[i]}"] = float(coef)
             l_df.append(dict_out)
     return l_df
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     df_all = pd.read_csv(PATH_FEATURES)
     df_all["label_enc"] = df_all["label"].map({"SLEEP": 0, "EyesOpen": 1, "EyesClosed": 2})
-    df_all.query("label_enc != 0", inplace=True)
+    #df_all.query("label_enc != 0", inplace=True)
 
     df_all = df_all.drop(columns=["time", "label"])
     np.random.seed()
@@ -132,12 +132,12 @@ if __name__ == "__main__":
     #compute_modality(subs[0], modality_[0])
     
     PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
-    for mod in modality_:
+    for mod in modality_[::-1]:
         l_df_ = Parallel(n_jobs=len(modality_))(delayed(compute_modality)(sub, mod) for sub in subs)
     
-        df_per = pd.DataFrame(list(np.concat(l_df_)))
+        df_per = pd.DataFrame(list(np.concatenate(l_df_)))
         
-        df_per.to_csv(os.path.join(PATH_BASE, f"out_per_loc_mod_{mod}_CB.csv"), index=False)
+        df_per.to_csv(os.path.join(PATH_BASE, f"out_per_loc_mod_{mod}_three_class_CB.csv"), index=False)
 
 
 
