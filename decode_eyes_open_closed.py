@@ -8,7 +8,7 @@ from sklearn import metrics, model_selection, linear_model
 from joblib import Parallel, delayed
 from catboost import CatBoostClassifier
 
-PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708\features_all.csv"
+PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708\features_all_with_lfa.csv"
 def balance_classes(df, target_column):
     min_class_size = df[target_column].value_counts().min()
     balanced_df = pd.concat([
@@ -23,7 +23,7 @@ def balance_classes(df, target_column):
 def run_cv(df):
     # run a three fold cross validation to decode the label column, remove the time column
     cv = model_selection.StratifiedKFold(n_splits=5, shuffle=True)
-    model = linear_model.LinearRegression()
+    #model = linear_model.LinearRegression()
     cm_list = []
     ba_list = []
     coef_list = []
@@ -78,8 +78,6 @@ def run_cv(df):
 
 def compute_modality(sub, mod):
     
-
-
     #for mod in modality_:
     l_df = []
     if mod != "all":
@@ -117,14 +115,18 @@ if __name__ == "__main__":
 
     df_all = pd.read_csv(PATH_FEATURES)
     df_all["label_enc"] = df_all["label"].map({"SLEEP": 0, "EyesOpen": 1, "EyesClosed": 2})
-    #df_all.query("label_enc != 0", inplace=True)
+    
+
+    DECODE_SLEEP = False
+    if not DECODE_SLEEP:
+        df_all.query("label_enc != 0", inplace=True)
 
     df_all = df_all.drop(columns=["time", "label"])
     np.random.seed()
 
-    locs = ["STN", "GPI", "ECOG", "EEG"]
-    modality_ = ["theta", "alpha", "low beta", "high beta", "low gamma", "high gamma", "HFA", "fft", "fooof", "all"]
-    modality_ = ["fft", "alpha", ]
+    locs = ["STN", "GPI"]  #  "ECOG", "EEG"
+    #modality_ = ["theta", "alpha", "low beta", "high beta", "low gamma", "high gamma", "HFA", "fft", "fooof", "all"]
+    modality_ = ["low_frequency_activity", "fft"]  
 
     subs = df_all["sub"].unique()
     diseases = df_all["disease"].unique()
@@ -132,15 +134,12 @@ if __name__ == "__main__":
     #compute_modality(subs[0], modality_[0])
     
     PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
-    for mod in modality_[::-1]:
-        l_df_ = Parallel(n_jobs=len(modality_))(delayed(compute_modality)(sub, mod) for sub in subs)
+    for mod in modality_:  # 
+        l_df_ = Parallel(n_jobs=len(subs))(delayed(compute_modality)(sub, mod) for sub in subs)
     
         df_per = pd.DataFrame(list(np.concatenate(l_df_)))
         
-        df_per.to_csv(os.path.join(PATH_BASE, f"out_per_loc_mod_{mod}_three_class_CB.csv"), index=False)
-
-
-
+        df_per.to_csv(os.path.join(PATH_BASE, f"out_per_loc_mod_{mod}_fft_with_lfa_CB.csv"), index=False)
 
 
 

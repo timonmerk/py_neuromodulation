@@ -43,15 +43,20 @@ def compute_subject(f):
     )
 
     settings = NMSettings.get_fast_compute()
+
+    settings.frequency_ranges_hz["low_frequency_activity"] = {
+        "frequency_high_hz": 12,
+        "frequency_low_hz" : 4,
+    }
     settings.preprocessing = ["raw_resampling", "notch_filter"]
     settings.postprocessing["feature_normalization"] = False
 
-    settings.features.fooof = True
-    settings.fooof.freq_range_hz["frequency_high_hz"] = 100
-    settings.fooof.freq_range_hz["frequency_low_hz"] = 40
-    settings.fooof.knee = False
-    settings.fooof.windowlength_ms = 1000
-    settings.fooof.aperiodic["knee"] = False
+    settings.features.fooof = False
+    # settings.fooof.freq_range_hz["frequency_high_hz"] = 100
+    # settings.fooof.freq_range_hz["frequency_low_hz"] = 40
+    # settings.fooof.knee = False
+    # settings.fooof.windowlength_ms = 1000
+    # settings.fooof.aperiodic["knee"] = False
 
     stream = nm.Stream(
         settings=settings,
@@ -84,7 +89,7 @@ if __name__ == "__main__":
     feature_l = Parallel(n_jobs=len(files_))(delayed(compute_subject)(f) for f in files_)
     
     df_all = pd.concat(feature_l)
-    df_all.to_csv(os.path.join(PATH_FILES, "features_all.csv"), index=False)
-    df_all.to_csv("features_all.csv", index=False)
+    df_all.to_csv(os.path.join(PATH_FILES, "features_all_with_lfa.csv"), index=False)
+    #df_all.to_csv("features_all_with_lfa.csv", index=False)
 
     
