@@ -116,26 +116,32 @@ print_mean_std(group_GPI) # 0.61 +/- 0.07
 print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.002
 
 # 4. Plot: Coefficients
-df_coef = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_fft_fft_with_lfa.csv"))
-# replace coef_low column with coef_lfa
-df_coef["coef_lfa"] = df_coef["coef_low"]
-df_coef = df_coef.drop(columns=["coef_low"])
-cols_coef = ['coef_theta', 'coef_alpha', 'coef_lfa', 'coef_low beta', 'coef_high beta', 'coef_low gamma', 'coef_high gamma', 'coef_HFA', ]
-# tile the dataframe to have all coef_ columns in one column
-df_coef_melt = df_coef.melt(id_vars=["sub", "loc", "ch", "mod", "dout", "ba"], value_vars=cols_coef)
-df_coef_melt_best = df_coef_melt.groupby(["sub", "loc", "mod", "dout", "variable"])[["ba", "value"]].max("ba").reset_index()
-df_coef_melt_best = df_coef_melt_best.query("dout != 'HD'").query("dout != 'TS'")
-df_coef_melt_best["dout"] = df_coef_melt_best["dout"].replace({"Meige": "Dys", "CD": "Dys", "GD": "Dys"})
+
+def group_coef_df(group_mod):
+    df_coef = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_fft_fft_with_lfa.csv"))
+    # replace coef_low column with coef_lfa
+    df_coef["coef_lfa"] = df_coef["coef_low"]
+    df_coef = df_coef.drop(columns=["coef_low"])
+    # tile the dataframe to have all coef_ columns in one column
+    df_coef_melt = df_coef.melt(id_vars=["sub", "ch","mod", group_mod, "ba"], value_vars=cols_coef)
+    df_coef_melt_best = df_coef_melt.groupby(["sub", "mod", "variable", group_mod])[["ba", "value"]].max("ba").reset_index()  #"loc", 
+    if group_mod == "dout":
+        df_coef_melt_best = df_coef_melt_best.query("dout != 'HD'").query("dout != 'TS'")
+        df_coef_melt_best["dout"] = df_coef_melt_best["dout"].replace({"Meige": "Dys", "CD": "Dys", "GD": "Dys"})
+    return df_coef_melt_best
 
 # loc location
 plt.figure(figsize=(6, 4), dpi=300)
 plt_list = ["loc", "dout"]
+cols_coef = ['coef_theta', 'coef_alpha', 'coef_lfa', 'coef_low beta', 'coef_high beta', 'coef_low gamma', 'coef_high gamma', 'coef_HFA', ]
+
 for i in range(2):
     plt.subplot(1,2,i+1)
     plt.axhline(0, color="gray", alpha=0.4)
+    df_coef_melt_best = group_coef_df(plt_list[i])
     sns.boxplot(data=df_coef_melt_best, x="variable", y="value", hue=plt_list[i], palette="viridis",
                 order=cols_coef, showfliers=False, showmeans=False, width=0.6)
-    ax = sns.swarmplot(data=df_coef_melt_best, x="variable", y="value", hue="loc", color=".25",
+    ax = sns.swarmplot(data=df_coef_melt_best, x="variable", y="value", hue=plt_list[i], color=".25",
                     order=cols_coef, alpha=0.5, dodge=True, size=3)
     if i==0:
         plt.ylabel("Coefficients", fontsize=fontsize_)
