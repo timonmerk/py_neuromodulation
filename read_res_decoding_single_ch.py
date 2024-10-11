@@ -9,7 +9,7 @@ from scipy import stats
 
 PATH_ = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\0210\raw_new"
 PATH_FIGURES = os.path.join(PATH_, "figures")
-
+fontsize_ = 10
 mods = ["alpha", "fft"]
 
 l_ = []
@@ -25,7 +25,6 @@ df_all["dout"] = df_all["dout"].replace({"Meige": "Dys", "CD": "Dys", "GD": "Dys
 df_all = df_all.query("dout != 'HD'").query("dout != 'TS'")
 
 # 1. Plot: Performance low frequency activity vs fft
-fontsize_ = 10
 plt.figure(figsize=(2,4), dpi=300)
 sns.boxplot(data=df_all.groupby(["sub", "mod"])["ba"].max().reset_index(),
             x="mod", y="ba", color="#46C389", showfliers=False, showmeans=False, width=0.6,
@@ -112,7 +111,7 @@ print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.001
 group_STN = df_all.query("loc == 'STN'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
 group_GPI = df_all.query("loc == 'GPI'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
 print_mean_std(group_STN)  # 0.71 +/- 0.1
-print_mean_std(group_GPI) # 0.69 +/- 0.06
+print_mean_std(group_GPI) # 0.62 +/- 0.06
 print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.001
 
 # 4. Plot: Coefficients
@@ -238,12 +237,22 @@ plt.show(block=True)
 
 group_LM = df_all_diseases.query("model == 'LM'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
 group_CB = df_all_diseases.query("model == 'CB'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
-print_mean_std(group_LM)  # 0.83 +/- 0.12
+print_mean_std(group_LM)  # 0.82 +/- 0.11
 print_mean_std(group_CB) # 0.86 +/- 0.11
 #nm_stats.permutationTest(group_LM, group_CB, p=5000, plot_distr=False, )
-print(stats.mannwhitneyu(group_LM, group_CB))  # p=0.2
+nm_stats.permutationTest_relative(np.array(group_LM), np.array(group_CB), False, None, 5000)
+print(stats.mannwhitneyu(group_LM, group_CB))  # p=0.16
 
+# a relative permuation test shows that there is a significant difference between the two models
+# p<10^-5, mean diff = 0.03, std diff = 0.03
 
+group_LM = df_all_diseases.query("model == 'LM'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+group_CB = df_all_diseases.query("model == 'CB'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+print_mean_std(group_LM)  # 0.82 +/- 0.11
+print_mean_std(group_CB) # 0.86 +/- 0.11
+#nm_stats.permutationTest(group_LM, group_CB, p=5000, plot_distr=False, )
+nm_stats.permutationTest_relative(np.array(group_LM), np.array(group_CB), False, None, 5000)
+print(stats.mannwhitneyu(group_LM, group_CB))  # p=0.16
 
 # PREVIOUS:
 
