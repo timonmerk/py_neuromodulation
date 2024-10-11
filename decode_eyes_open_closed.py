@@ -9,6 +9,8 @@ from joblib import Parallel, delayed
 from catboost import CatBoostClassifier
 
 PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708\features_all_with_lfa.csv"
+PATH_FEATURES = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\0210\raw_new\features_all_with_lfa.csv"
+
 def balance_classes(df, target_column):
     min_class_size = df[target_column].value_counts().min()
     balanced_df = pd.concat([
@@ -45,7 +47,7 @@ def run_cv(df):
         #X_train = X_train[cols_use]
         #X_test = X_test[cols_use]
 
-        #model = linear_model.LogisticRegression(class_weight="balanced")
+        model = linear_model.LogisticRegression(class_weight="balanced")
         model = CatBoostClassifier(verbose=0)
         model.fit(X_train, y_train)
         pred = model.predict(X_test)
@@ -126,14 +128,14 @@ if __name__ == "__main__":
 
     locs = ["STN", "GPI"]  #  "ECOG", "EEG"
     #modality_ = ["theta", "alpha", "low beta", "high beta", "low gamma", "high gamma", "HFA", "fft", "fooof", "all"]
-    modality_ = ["low_frequency_activity", "fft"]  
+    modality_ = ["fft", "alpha"]  # "low_frequency_activity", "alpha", 
 
     subs = df_all["sub"].unique()
     diseases = df_all["disease"].unique()
 
     #compute_modality(subs[0], modality_[0])
     
-    PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
+    PATH_BASE = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\0210\raw_new"
     for mod in modality_:  # 
         l_df_ = Parallel(n_jobs=len(subs))(delayed(compute_modality)(sub, mod) for sub in subs)
     

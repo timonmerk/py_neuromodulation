@@ -7,10 +7,10 @@ import numpy as np
 from py_neuromodulation import nm_stats
 from scipy import stats
 
-PATH_ = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\2708"
+PATH_ = r"C:\Users\ICN_admin\OneDrive - Charité - Universitätsmedizin Berlin\Dokumente\Decoding toolbox\EyesOpenBeijing\0210\raw_new"
 PATH_FIGURES = os.path.join(PATH_, "figures")
 
-mods = ["low_frequency_activity", "fft"]
+mods = ["alpha", "fft"]
 
 l_ = []
 for mod in mods:
@@ -20,7 +20,7 @@ for mod in mods:
 
 df_all = pd.concat(l_)
 
-df_all["mod"] = df_all["mod"].replace("low_frequency_activity", "lfa")
+df_all["mod"] = df_all["mod"].replace("low_frequency_activity", "alpha")
 df_all["dout"] = df_all["dout"].replace({"Meige": "Dys", "CD": "Dys", "GD": "Dys"})
 df_all = df_all.query("dout != 'HD'").query("dout != 'TS'")
 
@@ -29,9 +29,9 @@ fontsize_ = 10
 plt.figure(figsize=(2,4), dpi=300)
 sns.boxplot(data=df_all.groupby(["sub", "mod"])["ba"].max().reset_index(),
             x="mod", y="ba", color="#46C389", showfliers=False, showmeans=False, width=0.6,
-            order=["lfa", "fft"])
+            order=["alpha", "fft"])
 sns.swarmplot(data=df_all.groupby(["sub", "mod"])["ba"].max().reset_index(),
-              x="mod", y="ba", color=".25", alpha=0.5, dodge=True, size=4, order=["lfa", "fft"])
+              x="mod", y="ba", color=".25", alpha=0.5, dodge=True, size=4, order=["alpha", "fft"])
 plt.xlabel("F-band", fontsize=fontsize_)
 plt.ylabel("Balanced accuracy", fontsize=fontsize_)
 plt.xticks(fontsize=fontsize_); plt.yticks(fontsize=fontsize_)
@@ -45,10 +45,10 @@ plt.show(block=True)
 def print_mean_std(s: pd.Series):
     print(f"Mean: {s.mean():.2f} +/- {s.std():.2f}")
 
-group_lfa = df_all.groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'lfa'")["ba"]
+group_lfa = df_all.groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
 group_all = df_all.groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
-print_mean_std(group_lfa)  # 0.69 +/- 0.09
-print_mean_std(group_all) # 0.83 +/- 0.10
+print_mean_std(group_lfa)  # 0.67 +/- 0.09
+print_mean_std(group_all) # 0.82 +/- 0.11
 print(stats.mannwhitneyu(group_lfa, group_all)) # p<10^-5
 
 # 2. Plot: Performance low frequency activity vs fft per disease
@@ -57,10 +57,10 @@ diseases_ = df_all.dout.unique()
 # select only PD and Dys diseases
 sns.boxplot(data=df_all.groupby(["sub", "mod", "dout"])["ba"].max().reset_index(),
             x="mod", y="ba", hue="dout", palette="viridis", showfliers=False, showmeans=False,
-            order=["lfa", "fft"], width=0.6)
+            order=["alpha", "fft"], width=0.6)
 ax = sns.swarmplot(data=df_all.groupby(["sub", "mod", "dout"])["ba"].max().reset_index(),
                    x="mod", y="ba", hue="dout", color=".25", alpha=0.5, dodge=True, size=3, 
-                   order=["lfa", "fft"])
+                   order=["alpha", "fft"])
 handles, labels = ax.get_legend_handles_labels()
 l = plt.legend(handles[0:2], labels[0:2], bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xticks(fontsize=fontsize_); plt.yticks(fontsize=fontsize_)
@@ -74,24 +74,24 @@ plt.show(block=True)
 
 group_PD = df_all.query("dout == 'PD'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
 group_Dys = df_all.query("dout == 'Dys'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
-print_mean_std(group_PD)  # 0.81 +/- 0.1
-print_mean_std(group_Dys) # 0.85 +/- 0.10
-print(stats.mannwhitneyu(group_PD, group_Dys)) # p=0.12
+print_mean_std(group_PD)  # 0.82 +/- 0.11
+print_mean_std(group_Dys) # 0.82 +/- 0.11
+print(stats.mannwhitneyu(group_PD, group_Dys)) # p=0.86
 
-group_PD = df_all.query("dout == 'PD'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'lfa'")["ba"]
-group_Dys = df_all.query("dout == 'Dys'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'lfa'")["ba"]
-print_mean_std(group_PD)  # 0.72 +/- 0.1
-print_mean_std(group_Dys) # 0.67 +/- 0.09
-print(stats.mannwhitneyu(group_PD, group_Dys))  # p=0.18
+group_PD = df_all.query("dout == 'PD'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+group_Dys = df_all.query("dout == 'Dys'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+print_mean_std(group_PD)  # 0.69 +/- 0.11
+print_mean_std(group_Dys) # 0.65 +/- 0.08
+print(stats.mannwhitneyu(group_PD, group_Dys))  # p=0.27
 
 # 3. Plot: Performance low frequency activity vs fft per location
 plt.figure(figsize=(3, 4), dpi=300)
 sns.boxplot(data=df_all.groupby(["sub", "mod", "loc"])["ba"].max().reset_index(),
             x="mod", y="ba", hue="loc", palette="viridis", showfliers=False, showmeans=False,
-            order=["lfa", "fft"], width=0.6)
+            order=["alpha", "fft"], width=0.6)
 ax = sns.swarmplot(data=df_all.groupby(["sub", "mod", "loc"])["ba"].max().reset_index(),
                    x="mod", y="ba", hue="loc", color=".25", alpha=0.5, dodge=True, size=3, 
-                   order=["lfa", "fft"])
+                   order=["alpha", "fft"])
 handles, labels = ax.get_legend_handles_labels()
 l = plt.legend(handles[0:2], labels[0:2], bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.ylabel("Balanced accuracy", fontsize=fontsize_)
@@ -105,15 +105,15 @@ plt.show(block=True)
 
 group_STN = df_all.query("loc == 'STN'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
 group_GPI = df_all.query("loc == 'GPI'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
-print_mean_std(group_STN)  # 0.86 +/- 0.7
-print_mean_std(group_GPI) # 0.76 +/- 0.12
-print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.014
+print_mean_std(group_STN)  # 0.88 +/- 0.08
+print_mean_std(group_GPI) # 0.77 +/- 0.11
+print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.001
 
-group_STN = df_all.query("loc == 'STN'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'lfa'")["ba"]
-group_GPI = df_all.query("loc == 'GPI'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'lfa'")["ba"]
-print_mean_std(group_STN)  # 0.72 +/- 0.09
-print_mean_std(group_GPI) # 0.61 +/- 0.07
-print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.002
+group_STN = df_all.query("loc == 'STN'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+group_GPI = df_all.query("loc == 'GPI'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'alpha'")["ba"]
+print_mean_std(group_STN)  # 0.71 +/- 0.1
+print_mean_std(group_GPI) # 0.69 +/- 0.06
+print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.001
 
 # 4. Plot: Coefficients
 
@@ -185,27 +185,27 @@ plt.show(block=True)
 
 group_GPI = df_all_diseases.query("loc == 'GPI'").groupby("sub")["ba"].max()
 group_STN = df_all_diseases.query("loc == 'STN'").groupby("sub")["ba"].max()
-print_mean_std(group_GPI)  # 0.69 +/- 0.13
-print_mean_std(group_STN) # 0.80 +/- 0.08
-print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.03
+print_mean_std(group_GPI)  # 0.7 +/- 0.12
+print_mean_std(group_STN) # 0.81 +/- 0.07
+print(stats.mannwhitneyu(group_STN, group_GPI))  # p=0.0046
 
 group_PD = df_all_diseases.query("dout == 'PD'").groupby("sub")["ba"].max()
 group_Dys = df_all_diseases.query("dout == 'Dys'").groupby("sub")["ba"].max()
-print_mean_std(group_PD)  # 0.76 +/- 0.08
-print_mean_std(group_Dys) # 0.78 +/- 0.13
-print(stats.mannwhitneyu(group_PD, group_Dys))  # p=0.41
+print_mean_std(group_PD)  # 0.75 +/- 0.1
+print_mean_std(group_Dys) # 0.76 +/- 0.13
+print(stats.mannwhitneyu(group_PD, group_Dys))  # p=0.57
 
 # 6. Plot ML model comparison
 df_CB_all_fbands = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_fft_fft_with_lfa_CB.csv"))
 df_CB_all_fbands["mod"] = "fft"
 df_CB_lfa = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_low_frequency_activity_fft_with_lfa_CB.csv"))
-df_CB_lfa["mod"] = "lfa"
+df_CB_lfa["mod"] = "alpha"
 
 df_CB_all = pd.concat([df_CB_all_fbands, df_CB_lfa])
 df_CB_all["model"] = "CB"
 
 df_LM_all = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_low_frequency_activity_fft_with_lfa.csv"))
-df_LM_all["mod"] = "lfa"
+df_LM_all["mod"] = "alpha"
 df_LM_all_fbands = pd.read_csv(os.path.join(PATH_, "out_per_loc_mod_fft_fft_with_lfa.csv"))
 df_LM_all_fbands["mod"] = "fft"
 
@@ -220,11 +220,11 @@ df_all_diseases = df_all.query("dout != 'HD'").query("dout != 'TS'")
 plt.figure(figsize=(2, 4), dpi=300)
 ax = sns.boxplot(data=df_all_diseases.groupby(["sub", "mod", "dout", "model"])["ba"].max().reset_index(),
             x="mod", y="ba", hue="model", palette="viridis", showfliers=False, showmeans=False,
-            width=0.6, order=["lfa", "fft"], hue_order=["LM", "CB"]
+            width=0.6, order=["alpha", "fft"], hue_order=["LM", "CB"]
            )
 ax = sns.swarmplot(data=df_all_diseases.groupby(["sub", "mod", "dout", "model"])["ba"].max().reset_index(),
                    x="mod", y="ba", hue="model", color=".25", alpha=0.5, dodge=True, size=3, 
-                   order=["lfa", "fft"], hue_order=["LM", "CB"]
+                   order=["alpha", "fft"], hue_order=["LM", "CB"]
                    )
 plt.title("Models", fontsize=fontsize_)
 plt.ylabel("Balanced accuracy", fontsize=fontsize_)
@@ -238,10 +238,12 @@ plt.show(block=True)
 
 group_LM = df_all_diseases.query("model == 'LM'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
 group_CB = df_all_diseases.query("model == 'CB'").groupby(["sub", "mod"])["ba"].max().reset_index().query("mod == 'fft'")["ba"]
-print_mean_std(group_LM)  # 0.83 +/- 0.10
-print_mean_std(group_CB) # 0.86 +/- 0.10
+print_mean_std(group_LM)  # 0.83 +/- 0.12
+print_mean_std(group_CB) # 0.86 +/- 0.11
 #nm_stats.permutationTest(group_LM, group_CB, p=5000, plot_distr=False, )
-print(stats.mannwhitneyu(group_LM, group_CB))  # p=0.27
+print(stats.mannwhitneyu(group_LM, group_CB))  # p=0.2
+
+
 
 # PREVIOUS:
 
